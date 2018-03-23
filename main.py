@@ -14,31 +14,12 @@
 # ==================================================================================================================== #
 # ==================================================================================================================== #
 
-from typing import *
-
-
-class Graph:
-
-    def __init__(self, neighbour_list: List[List[int]]):
-
-        self.neighbour_list = neighbour_list
-
-    def __repr__(self):
-
-        return f'Graph({self.neighbour_list})'
-
-    def get_neighbours(self, vertex):
-
-        return self.neighbour_list[vertex]
-
-    def is_link(self, vertex1, vertex2):
-
-        return vertex2 in self.get_neighbours(vertex1)
+from typing import List, Tuple
 
 
 class Path:
 
-    def __init__(self, graph: Graph, vertice_list=[]):
+    def __init__(self, graph, vertice_list=[]):
 
         self.graph = graph
         self.vertices_list = vertice_list
@@ -134,28 +115,38 @@ class Path:
         return new_best_path
 
 
-class WeightedGraph(Graph):
+class Graph:
 
-    def __init__(self, weighted_neighbour_list: List[List[Tuple[int, int]]]):
-        super(type(self), self).__init__([])
-        self.neighbour_list = weighted_neighbour_list
+    PathClass = Path
+
+    def __init__(self, neighbour_list: List[List[int]]):
+
+        self.neighbour_list = neighbour_list
 
     def __repr__(self):
 
-        return f'WeightedGraph({self.neighbour_list})'
+        return f'Graph({self.neighbour_list})'
 
     def get_neighbours(self, vertex):
 
-        return [i[0] for i in self.neighbour_list[vertex]]
+        return self.neighbour_list[vertex]
 
-    def get_weight(self, vertex1: int, vertex2: int):
+    def is_link(self, vertex1, vertex2):
 
-        if self.is_link(vertex1, vertex2):
-            i = self.get_neighbours(vertex1).index(vertex2)
-            return self.neighbour_list[vertex1][i][1]
+        return vertex2 in self.get_neighbours(vertex1)
+
+    def dijkstra(self, start_vertex, end_vertex):
+
+        return self.path_class(self).dijkstra(start_vertex, end_vertex)
+
+    def breadth_first_search(self, start_vertex):
+
+        path_list = [self.PathClass(self, vertice_list=[start_vertex])]
 
 
 class WeightedPath(Path):
+
+    weighted = False
 
     def __len__(self):
         s = 0
@@ -183,18 +174,46 @@ class WeightedPath(Path):
         return s
 
 
-g = Graph([[1, 2], [0, 2, 5], [0, 1, 3, 4], [2, 5], [2, 5], [3, 4]])
+class WeightedGraph(Graph):
 
-p = Path(g)
-p.dijkstra(0, 5, log=True)
+    PathClass = WeightedPath
 
-print(str(p))
+    def __init__(self, weighted_neighbour_list: List[List[Tuple[int, int]]]):
+        super(type(self), self).__init__([])
+        self.neighbour_list = weighted_neighbour_list
 
-wg = WeightedGraph([[(1, 1), (2, 1)], [(0, 1), (2, 2), (5, 10)], [(0, 1), (1, 2), (3, 3), (4, 1)], [(2, 3), (5, 4)],
-                    [(2, 1), (5, 1)], [(3, 4), (4, 1)]])
-wp = WeightedPath(wg)
-wp1 = WeightedPath(wg, vertice_list=[0, 1, 2])
-wp2 = WeightedPath(wg, vertice_list=[0, 2])
-wp.dijkstra(0, 5, log=True)
+    def __repr__(self):
 
-print(wp)
+        return f'WeightedGraph({self.neighbour_list})'
+
+    def get_neighbours(self, vertex):
+
+        return [i[0] for i in self.neighbour_list[vertex]]
+
+    def get_weight(self, vertex1: int, vertex2: int):
+
+        if self.is_link(vertex1, vertex2):
+            i = self.get_neighbours(vertex1).index(vertex2)
+            return self.neighbour_list[vertex1][i][1]
+
+
+if __name__ == '__main__':
+    g = Graph([[1, 2], [0, 2, 5], [0, 1, 3, 4], [2, 5], [2, 5], [3, 4]])
+
+    p = Path(g)
+    p.dijkstra(0, 5, log=True)
+
+    g.get_neighbours(0)
+    print(p)
+
+    wg = WeightedGraph([[(1, 1), (2, 1)],
+                        [(0, 1), (2, 2), (5, 10)],
+                        [(0, 1), (1, 2), (3, 3), (4, 1)],
+                        [(2, 3), (5, 4)],
+                        [(2, 1), (5, 1)], [(3, 4), (4, 1)]])
+    wp = WeightedPath(wg)
+    wp1 = WeightedPath(wg, vertice_list=[0, 1, 2])
+    wp2 = WeightedPath(wg, vertice_list=[0, 2])
+    wp.dijkstra(0, 5, log=True)
+
+    print(wp)
