@@ -19,14 +19,28 @@ from typing import List, Tuple
 
 class Path:
 
-    def __init__(self, graph, vertice_list=[]):
+    def __init__(self, graph, vertice_list=None):
 
+        if vertice_list is None:
+            vertice_list = []
         self.graph = graph
-        self.vertices_list = vertice_list
+        self._vertices_list = vertice_list
+        self._len = None
+        len(self)
+
+    def __add__(self, other):
+
+        if type(other) == int:
+            path_sum = type(self)(self.graph, vertice_list=self._vertices_list + [other])
+            path_sum._len = self._len + self.graph.get_weight(path_sum[-2], path_sum[-1])
+            return path_sum
 
     def __len__(self):
 
-        return len(self.vertices_list)
+        if self._len is None:
+            self._len = len(self._vertices_list)
+
+        return self._len
 
     def __lt__(self, other):
 
@@ -46,28 +60,28 @@ class Path:
 
     def __repr__(self) -> str:
 
-        return f'Path({self.graph}, vertice_list={self.vertices_list})'
+        return f'Path({self.graph}, vertice_list={self._vertices_list})'
 
     def __str__(self) -> str:
 
         s = ''
 
-        for k, v in enumerate(self.vertices_list):
+        for k, v in enumerate(self._vertices_list):
             s += str(v)
 
-            if k < len(self.vertices_list) - 1:
+            if k < len(self._vertices_list) - 1:
                 s += ' -> '
 
         return s
 
     def __getitem__(self, item: int):
 
-        return self.vertices_list[item]
+        return self._vertices_list[item]
 
     def is_same(self, other) -> bool:
 
-        return (self.get_first_vertex() == other.get_first_vertex()) \
-               and (self.get_last_vertex() == other.get_last_vertex())
+        return (self[0] == other[0]) \
+               and (self[-1] == other[-1])
 
     def is_better(self, other) -> bool:
 
@@ -79,17 +93,8 @@ class Path:
 
     def expand(self):
 
-        return [type(self)(self.graph, vertice_list=self.vertices_list + [i])
-                for i in self.graph.get_neighbours(self.get_last_vertex())
-                if i != self.vertices_list[len(self.vertices_list) - 2]]
-
-    def get_first_vertex(self) -> int:
-
-        return self.vertices_list[0]
-
-    def get_last_vertex(self) -> int:
-
-        return self[len(self.vertices_list) - 1]
+        return [self + i for i in self.graph.get_neighbours(self[-1])
+                if i != self._vertices_list[len(self._vertices_list) - 2]]
 
     def dijkstra(self, start_vertex: int, end_vertex: int, log=False):
 
@@ -99,7 +104,7 @@ class Path:
         if log:
             print([str(pa) for pa in border_list])
 
-        while new_best_path.get_last_vertex() != end_vertex:
+        while new_best_path[-1] != end_vertex:
 
             # not optimised
             new_pathes = sum(([p for p in path.expand() if not any(p.is_worst(p2) for p2 in border_list)]
@@ -111,7 +116,7 @@ class Path:
             new_best_path = min(new_pathes)
             border_list.append(new_best_path)
 
-        self.vertices_list = new_best_path.vertices_list
+        self._vertices_list = new_best_path._vertices_list
         return new_best_path
 
 
@@ -135,13 +140,34 @@ class Graph:
 
         return vertex2 in self.get_neighbours(vertex1)
 
+    def get_weight(self, vertex1: int, vertex2: int):
+
+        if self.is_link(vertex1, vertex2):
+            return 1
+
     def dijkstra(self, start_vertex, end_vertex):
 
-        return self.path_class(self).dijkstra(start_vertex, end_vertex)
+        return self.PathClass(self).dijkstra(start_vertex, end_vertex)
 
-    def breadth_first_search(self, start_vertex):
+    def breadth_first_search(self, start_vertex: int):
 
-        path_list = [self.PathClass(self, vertice_list=[start_vertex])]
+        status_list = [0] * len(self.neighbour_list)
+        status_list[start_vertex] = 1
+        new_pathes = [self.PathClass(self, vertice_list=[start_vertex])]
+        path_list = new_pathes[:]
+
+        while new_pathes:
+            u = new_pathes[0]
+            print('new_path = ', [str(p) for p in new_pathes])
+            print('u.expand() = ', [str(p) for p in u.expand()], '\n')
+            for path in u.expand():
+                if status_list[path[-1]] == 0:
+                    status_list[path[-1]] = 1
+                    new_pathes.append(path)
+                    path_list.append(path)
+            del(new_pathes[0])
+            status_list[u[-1]] = 2
+        return path_list
 
 
 class WeightedPath(Path):
@@ -149,27 +175,32 @@ class WeightedPath(Path):
     weighted = False
 
     def __len__(self):
-        s = 0
-        for k, v in enumerate(self.vertices_list):
 
-            if v != self.get_last_vertex():
-                # print(f'Logging : k : {k}, v : {v}, vertices_list: {self.vertices_list}')
-                s += self.graph.get_weight(v, self.vertices_list[k + 1])
-        # print(f'len({self}) = {s}')
-        return s
+        if self._len is None:
+            s = 0
+
+            for k, v in enumerate(self._vertices_list):
+
+                if v != self[-1]:
+                    # print(f'Logging : k : {k}, v : {v}, vertices_list: {self.vertices_list}')
+                    s += self.graph.get_weight(v, self._vertices_list[k + 1])
+            # print(f'len({self}) = {s}')
+            self._len = s
+
+        return self._len
 
     def __repr__(self):
 
-        return f'WeightedPath({self.graph}, vertice_list={self.vertices_list})'
+        return f'WeightedPath({self.graph}, vertice_list={self._vertices_list})'
 
     def __str__(self):
 
         s = ''
-        for k, v in enumerate(self.vertices_list):
+        for k, v in enumerate(self._vertices_list):
             s += str(v)
 
-            if v != self.get_last_vertex():
-                s += f' -({self.graph.get_weight(v, self.vertices_list[k + 1])})-> '
+            if v != self[-1]:
+                s += f' -({self.graph.get_weight(v, self._vertices_list[k + 1])})-> '
 
         return s
 
@@ -179,6 +210,7 @@ class WeightedGraph(Graph):
     PathClass = WeightedPath
 
     def __init__(self, weighted_neighbour_list: List[List[Tuple[int, int]]]):
+
         super(type(self), self).__init__([])
         self.neighbour_list = weighted_neighbour_list
 
@@ -186,11 +218,11 @@ class WeightedGraph(Graph):
 
         return f'WeightedGraph({self.neighbour_list})'
 
-    def get_neighbours(self, vertex):
+    def get_neighbours(self, vertex: int) -> List[int]:
 
         return [i[0] for i in self.neighbour_list[vertex]]
 
-    def get_weight(self, vertex1: int, vertex2: int):
+    def get_weight(self, vertex1: int, vertex2: int) -> float:
 
         if self.is_link(vertex1, vertex2):
             i = self.get_neighbours(vertex1).index(vertex2)
@@ -199,21 +231,21 @@ class WeightedGraph(Graph):
 
 if __name__ == '__main__':
     g = Graph([[1, 2], [0, 2, 5], [0, 1, 3, 4], [2, 5], [2, 5], [3, 4]])
+    print([str(i) for i in g.breadth_first_search(0)])
+    # p = Path(g)
+    # p.dijkstra(0, 5, log=True)
 
-    p = Path(g)
-    p.dijkstra(0, 5, log=True)
-
-    g.get_neighbours(0)
-    print(p)
+    # g.get_neighbours(0)
+    # print(p)
 
     wg = WeightedGraph([[(1, 1), (2, 1)],
                         [(0, 1), (2, 2), (5, 10)],
                         [(0, 1), (1, 2), (3, 3), (4, 1)],
                         [(2, 3), (5, 4)],
                         [(2, 1), (5, 1)], [(3, 4), (4, 1)]])
-    wp = WeightedPath(wg)
-    wp1 = WeightedPath(wg, vertice_list=[0, 1, 2])
-    wp2 = WeightedPath(wg, vertice_list=[0, 2])
-    wp.dijkstra(0, 5, log=True)
+    # wp = WeightedPath(wg)
+    # wp1 = WeightedPath(wg, vertice_list=[0, 1, 2])
+    # wp2 = WeightedPath(wg, vertice_list=[0, 2])
+    # wp.dijkstra(0, 5, log=True)
 
-    print(wp)
+    print([str(i) for i in wg.breadth_first_search(0)])
