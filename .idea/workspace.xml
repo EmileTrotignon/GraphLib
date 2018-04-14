@@ -23,10 +23,10 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="357">
-              <caret line="196" column="28" lean-forward="false" selection-start-line="196" selection-start-column="28" selection-end-line="196" selection-end-column="28" />
+            <state relative-caret-position="451">
+              <caret line="332" column="20" lean-forward="false" selection-start-line="332" selection-start-column="20" selection-end-line="332" selection-end-column="20" />
               <folding>
-                <element signature="e#1816#1846#0" expanded="true" />
+                <element signature="e#1816#1837#0" expanded="true" />
                 <element signature="e#2130#2297#0" expanded="false" />
                 <element signature="e#2373#2568#0" expanded="false" />
                 <element signature="e#2609#2705#0" expanded="false" />
@@ -57,6 +57,7 @@
   <component name="Git.Settings">
     <option name="PREVIOUS_COMMIT_AUTHORS">
       <list>
+        <option value="EmileTrotignon &lt;emile.trotignon@laposte.net&gt;" />
         <option value="Name &lt;emile.trotignon@laposte.net&gt;" />
       </list>
     </option>
@@ -325,7 +326,14 @@
       <option name="project" value="LOCAL" />
       <updated>1523747998137</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Adds graphs with weights on their vertex&#10;Also an untested algorithm for 1830">
+      <created>1523748193367</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1523748193367</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -386,6 +394,7 @@
     <MESSAGE value="Add breadth first search algorithm&#10;&#10;Works on both weighted and non weighted graph" />
     <MESSAGE value="Adds graphs with weights on their vertex&#10;Also an untested algorithm for 1830" />
     <option name="LAST_COMMIT_MESSAGE" value="Adds graphs with weights on their vertex&#10;Also an untested algorithm for 1830" />
+    <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -407,7 +416,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#1816#1846#0" expanded="true" />
+            <element signature="e#1816#1837#0" expanded="true" />
             <element signature="e#2130#2297#0" expanded="false" />
             <element signature="e#2373#2568#0" expanded="false" />
             <element signature="e#2609#2705#0" expanded="false" />
@@ -438,7 +447,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#1816#1846#0" expanded="true" />
+            <element signature="e#1816#1837#0" expanded="true" />
             <element signature="e#2130#2297#0" expanded="false" />
             <element signature="e#2373#2568#0" expanded="false" />
             <element signature="e#2609#2705#0" expanded="false" />
@@ -469,7 +478,7 @@
         <state relative-caret-position="3451">
           <caret line="224" column="5" lean-forward="false" selection-start-line="224" selection-start-column="5" selection-end-line="224" selection-end-column="5" />
           <folding>
-            <element signature="e#1816#1846#0" expanded="true" />
+            <element signature="e#1816#1837#0" expanded="true" />
             <element signature="e#2130#2297#0" expanded="false" />
             <element signature="e#2373#2568#0" expanded="false" />
             <element signature="e#2609#2705#0" expanded="false" />
@@ -500,7 +509,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#1816#1846#0" expanded="true" />
+            <element signature="e#1816#1837#0" expanded="true" />
             <element signature="e#2130#2297#0" expanded="false" />
             <element signature="e#2373#2568#0" expanded="false" />
             <element signature="e#2609#2705#0" expanded="false" />
@@ -531,7 +540,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#1816#1846#0" expanded="true" />
+            <element signature="e#1816#1837#0" expanded="true" />
             <element signature="e#2130#2297#0" expanded="false" />
             <element signature="e#2373#2568#0" expanded="false" />
             <element signature="e#2609#2705#0" expanded="false" />
@@ -562,7 +571,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#1816#1846#0" expanded="true" />
+            <element signature="e#1816#1837#0" expanded="true" />
             <element signature="e#2130#2297#0" expanded="false" />
             <element signature="e#2373#2568#0" expanded="false" />
             <element signature="e#2609#2705#0" expanded="false" />
@@ -593,7 +602,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#1816#1846#0" expanded="true" />
+            <element signature="e#1816#1837#0" expanded="true" />
             <element signature="e#2130#2297#0" expanded="false" />
             <element signature="e#2373#2568#0" expanded="false" />
             <element signature="e#2609#2705#0" expanded="false" />
@@ -624,7 +633,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#1816#1846#0" expanded="true" />
+            <element signature="e#1816#1837#0" expanded="true" />
             <element signature="e#2130#2297#0" expanded="false" />
             <element signature="e#2373#2568#0" expanded="false" />
             <element signature="e#2609#2705#0" expanded="false" />
@@ -647,7 +656,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#1816#1846#0" expanded="true" />
+            <element signature="e#1816#1837#0" expanded="true" />
             <element signature="e#2130#2297#0" expanded="false" />
             <element signature="e#2373#2568#0" expanded="false" />
             <element signature="e#2609#2705#0" expanded="false" />
@@ -670,7 +679,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#1816#1846#0" expanded="true" />
+            <element signature="e#1816#1837#0" expanded="true" />
             <element signature="e#2130#2297#0" expanded="false" />
             <element signature="e#2373#2568#0" expanded="false" />
             <element signature="e#2609#2705#0" expanded="false" />
@@ -721,10 +730,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="196" column="28" lean-forward="false" selection-start-line="196" selection-start-column="28" selection-end-line="196" selection-end-column="28" />
+        <state relative-caret-position="451">
+          <caret line="332" column="20" lean-forward="false" selection-start-line="332" selection-start-column="20" selection-end-line="332" selection-end-column="20" />
           <folding>
-            <element signature="e#1816#1846#0" expanded="true" />
+            <element signature="e#1816#1837#0" expanded="true" />
             <element signature="e#2130#2297#0" expanded="false" />
             <element signature="e#2373#2568#0" expanded="false" />
             <element signature="e#2609#2705#0" expanded="false" />

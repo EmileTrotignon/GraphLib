@@ -330,3 +330,4 @@ if __name__ == '__main__':
     print(wg.dijkstra(0, 5))
     #print([str(i) for i in wg.breadth_first_search(0)])
 
+#just checking stuff
