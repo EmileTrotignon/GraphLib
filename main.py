@@ -14,8 +14,8 @@
 # ==================================================================================================================== #
 # ==================================================================================================================== #
 
-from typing import List, Tuple
 from copy import copy
+from typing import List, Tuple
 
 
 def functionnal_copy(destination: list, item, key: int) -> list:
@@ -194,7 +194,7 @@ class Graph:
     def depth_first_search(self, start_vertex: int):
         """
         Depth first search algorithm
-        /!\ Not done yet
+        /!\ Not done yet /!\
         """
         pass
 
