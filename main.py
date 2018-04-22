@@ -15,21 +15,41 @@
 # ==================================================================================================================== #
 
 from copy import copy
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 
-def functionnal_copy(destination: list, item, key: int) -> list:
+def functional_copy(destination: list, item, key: int) -> list:
 
     result = copy(destination)
     result[key] = item
     return item
 
 
+def weird_matching(list_end: list, list_begin: list) -> List[list]:
+
+    base = len(list_end)
+    n_digits = len(list_begin)
+    result = []
+    current = [0] * n_digits
+
+    while current != [base - 1] * n_digits:
+        result.append(copy(current))
+        current[0] += 1
+        i = 0
+
+        while current[i] == base:
+            current[i] = 0
+            i += 1
+            current[i] += 1
+
+    return [[list_end[n] for n in r] for r in result]
+
+
 class Path:
 
     GraphClass = 'Graph'
 
-    def __init__(self, graph: GraphClass, vertice_list: List[int]=None):
+    def __init__(self, graph: 'GraphClass', vertice_list: List[int]=None):
 
         if vertice_list is None:
             vertice_list = []
@@ -87,6 +107,14 @@ class Path:
     def __getitem__(self, item: int) -> int:
 
         return self._vertices_list[item]
+
+    def is_overlapping(self, other: 'Path') -> bool:
+
+        return all([vertex in other for vertex in self])
+
+    def number_of_vertices(self):
+
+        return len(self._vertices_list)
 
     def reversed(self) -> 'Path':
         return type(self)(self.graph, self._vertices_list[::-1])
@@ -207,21 +235,40 @@ class Graph:
         first_path = self.PathClass(self, [start_vertex])
         return aux(first_path)
 
-    def gen_max_pathes(self, start_vertices: List[int], nbr_of_pathes: int) -> List[PathClass]:
+    def gen_max_pathes(self, start_vertices: List[int], pathes_length_list: List[Union[int, None]], min_len=2) \
+            -> List[PathClass]:
 
-        def evualuate_path_vect(pathes_list: List[self.PathClass]) -> int:
+        Vector = List[self.PathClass]
 
-            return sum(len(path) for path in pathes_list)
+        def evualuate_path_vect(vector: Vector) -> int:
 
-        def aux(start_path_vect: List[self.PathClass]) -> List[self.PathClass]:
+            return sum(len(path) for path in vector) if vector is not None else 0
 
-            extended_path_vectors = [(k, path.no_cycle_expand()) for k, path in enumerate(start_path_vect)] \
-                                  + [(k, path.reversed().no_cycle_expand()) for k, path in enumerate(start_path_vect)]
-            next_pathes_list = [functionnal_copy(start_path_vect, path, k) for k, path in extended_path_vectors]
+        def is_vector_valid(vector: Vector) -> bool:
 
-            return max([aux(path_vect) for path_vect in next_pathes_list] + [start_path_vect], key=evualuate_path_vect)
+            return all(all(path.is_overlapping(other) for other in vector if other is not path)
+                       and (path.number_of_vertices() <= pathes_length_list[k]
+                            if pathes_length_list is not None else True)
+                       for k, path in enumerate(vector))
 
-        return aux([self.PathClass(self, [vertex]) for vertex in start_vertices])
+        def aux(start_vector: Vector) -> Vector:
+
+            # List[Tuple[Expansion, Expansion]]
+            next_pathes = [(path.no_cycle_expand(), path.reversed().no_cycle_expand()) for path in start_vector]
+
+            next_vectors = sum(([functional_copy(start_vector, path, k) for path in pathes_list
+                                 if is_vector_valid(functional_copy(start_vector, path, k))] +
+                                [functional_copy(start_vector, path, k) for path in r_pathes_list
+                                 if is_vector_valid(functional_copy(start_vector, path, k))]
+                                for k, (pathes_list, r_pathes_list) in enumerate(next_pathes)),
+                               [])
+            return max(start_vector if all(min_len <= path.number_of_vertices()
+                                           for k, path in enumerate(start_vector)) else [],
+                       *[aux(vect) for vect in next_vectors], key=evualuate_path_vect)
+
+        start_vectors = weird_matching(start_vertices, list(range(len(pathes_length_list))))
+
+        return max(aux(vector) for vector in start_vectors)
 
 
 class WeightedPath(Path):
@@ -311,8 +358,8 @@ class WeightedVerticesGraph(Graph):
 if __name__ == '__main__':
     g = Graph([[1, 2], [0, 2, 5], [0, 1, 3, 4], [2, 5], [2, 5], [1, 3, 4]])
     # print([str(i) for i in g.breadth_first_search(0)])
-    p = Path(g)
-    p.dijkstra(0, 5)
+    pprime = Path(g)
+    pprime.dijkstra(0, 5)
     print(g.dijkstra(0, 5))
     # g.get_neighbours(0)
     # print(p)
@@ -326,8 +373,8 @@ if __name__ == '__main__':
     wp = WeightedPath(wg)
     # wp1 = WeightedPath(wg, vertice_list=[0, 1, 2])
     # wp2 = WeightedPath(wg, vertice_list=[0, 2])
-    wp.dijkstra(0, 5)
-    print(wg.dijkstra(0, 5))
+    # wp.dijkstra(0, 5)
+    # print(wg.dijkstra(0, 5))
     #print([str(i) for i in wg.breadth_first_search(0)])
-
+    print(weird_matching(['c', 'd', 'e'], ['a', 'b', 'c']))
 #just checking stuff
