@@ -15,7 +15,7 @@
 # ==================================================================================================================== #
 
 import functools
-
+from typing import *
 from utilities import *
 
 
@@ -261,10 +261,10 @@ class Graph:
                                      for k, (pathes_list, r_pathes_list) in enumerate(next_pathes)]
 
             next_vectors = no_duplicate(sum(next_forward_vectors + next_backward_vectors, []))
-            print('nxt', start_vector, next_vectors, [[p.number_of_vertices() >= min_len for p in v] for v in next_vectors])
+
             rec_results = [aux(vect) for vect in next_vectors
                            if is_vector_long_enough(aux(vect))]
-            print('rec', next_vectors, rec_results)
+
             if not is_vector_long_enough(start_vector):
 
                 if rec_results == []:
