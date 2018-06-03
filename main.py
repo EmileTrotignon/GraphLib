@@ -14,40 +14,9 @@
 # ==================================================================================================================== #
 # ==================================================================================================================== #
 
-from copy import copy
-from typing import List, Tuple, Union
+import functools
 
-
-def functional_copy(destination: list, item, key: int) -> list:
-
-    result = copy(destination)
-    result[key] = item
-    return result
-
-
-def weird_matching(list_end: list, list_begin: list) -> List[list]:
-
-    base = len(list_end)
-    n_digits = len(list_begin)
-    result = []
-    current = [0] * n_digits
-    print(list_begin, list_end)
-    result.append(copy(current))
-    while current != [base - 1] * n_digits:
-        print('bou')
-
-        current[0] += 1
-        i = 0
-
-        while current[i] == base:
-            print('boubouboubyy')
-            current[i] = 0
-            i += 1
-            current[i] += 1
-
-        result.append(copy(current))
-
-    return [[list_end[n] for n in r] for r in result]
+from utilities import *
 
 
 class Path:
@@ -113,9 +82,20 @@ class Path:
 
         return self._vertices_list[item]
 
+    def __eq__(self, other):
+
+        return self._vertices_list == other._vertices_list
+
+    def __hash__(self):
+        s = ''
+        for vertex in self:
+            s += str(vertex)
+        s += str(hash(self.graph))
+        return int(s)
+
     def is_overlapping(self, other: 'Path') -> bool:
 
-        return all([vertex in other for vertex in self])
+        return all(vertex in other for vertex in self)
 
     def number_of_vertices(self):
 
@@ -145,7 +125,7 @@ class Path:
     def no_cycle_expand(self) -> List['Path']:
 
         return [self + i for i in self.graph.get_neighbours(self[-1])
-                if i not in self._vertices_list]
+                if i not in self._vertices_list] if len(self) > 0 else []
 
     def dijkstra(self, start_vertex: int, end_vertex: int, log=False):
 
@@ -182,6 +162,9 @@ class Graph:
     def __repr__(self):
 
         return f'Graph({self.neighbour_list})'
+
+    def __hash__(self):
+        return 122
 
     def get_neighbours(self, vertex: int) -> List[int]:
 
@@ -236,6 +219,7 @@ class Graph:
         """
 
         def aux(start_path: self.PathClass):
+
             return max([aux(path) for path in start_path.no_cycle_expand()]
                        + [aux(path) for path in start_path.reversed().no_cycle_expand()] + [start_path])
 
@@ -243,52 +227,63 @@ class Graph:
         return aux(first_path)
 
     def gen_max_pathes(self, start_vertices: List[int], pathes_length_list: List[Union[int, None]], min_len=2) \
-            -> List[PathClass]:
+            -> Tuple[PathClass]:
 
-        Vector = List[self.PathClass]
-        print('debut gen max pathes')
-
-        def evualuate_path_vect(vector: List[self.PathClass]) -> int:
-            print('eval', vector)
+        def evualuate_path_vect(vector: Tuple[self.PathClass]) -> int:
 
             return sum(len(path) for path in vector) if vector is not None else 0
 
-        def is_vector_valid(vector: List[self.PathClass]) -> bool:
+        def is_vector_valid(vector: Tuple[self.PathClass]) -> bool:
 
             return all(all(path.is_overlapping(other) for other in vector if other is not path)
                        and (path.number_of_vertices() <= pathes_length_list[k]
                             if pathes_length_list is not None else True)
                        for k, path in enumerate(vector))
 
-        def aux(start_vector: List[self.PathClass]) -> List[self.PathClass]:
+        def is_vector_long_enough(vector: Tuple[self.PathClass]):
 
-            # List[Tuple[Expansion, Expansion]]
-            print('debut aux', start_vector)
+            return all(p.number_of_vertices() >= min_len or p.number_of_vertices() == 0 for p in vector)
 
-            next_pathes = [(path.no_cycle_expand(), path.reversed().no_cycle_expand()) for path in start_vector]
-            print('nxt2', str(start_vector[0].no_cycle_expand()))
-            next_vectors = sum(([functional_copy(start_vector, path, k)
-                                 for path in pathes_list
-                                 if is_vector_valid(functional_copy(start_vector, path, k))] +
-                                [functional_copy(start_vector, path, k)
-                                 for path in r_pathes_list
-                                 if is_vector_valid(functional_copy(start_vector, path, k))]
-                                for k, (pathes_list, r_pathes_list) in enumerate(next_pathes)),
-                               [])
-            print('nxt', next_vectors)
-            print(start_vector)
-            returner = max((start_vector if all(min_len <= path.number_of_vertices()
-                           for k, path in enumerate(start_vector))
-                           else []),
-                           *[aux(vect) for vect in next_vectors], [], key=evualuate_path_vect)
+        @functools.lru_cache(maxsize=None)  # Memoization
+        def aux(start_vector: Tuple[self.PathClass]) -> Tuple[self.PathClass]:
 
-            print('aux', returner)
-            return returner
+            next_pathes = no_duplicate([(path.no_cycle_expand(), path.reversed().no_cycle_expand())
+                                        for path in start_vector])
 
-        start_vectors = [[self.PathClass(self, vertice_list=[i]) for i in li] for li in weird_matching(start_vertices, list(range(len(pathes_length_list))))]
-        print(start_vectors)
-        print('krkrkrk', [aux(vector) for vector in start_vectors])
-        #return max(aux(vector) for vector in start_vectors)
+            next_forward_vectors = [[functional_copy(start_vector, path, k)
+                                     for path in pathes_list
+                                     if is_vector_valid(functional_copy(start_vector, path, k))]
+                                    for k, (pathes_list, r_pathes_list) in enumerate(next_pathes)]
+
+            next_backward_vectors = [[functional_copy(start_vector, path, k)
+                                      for path in r_pathes_list
+                                      if is_vector_valid(functional_copy(start_vector, path, k))]
+                                     for k, (pathes_list, r_pathes_list) in enumerate(next_pathes)]
+
+            next_vectors = no_duplicate(sum(next_forward_vectors + next_backward_vectors, []))
+            print('nxt', start_vector, next_vectors, [[p.number_of_vertices() >= min_len for p in v] for v in next_vectors])
+            rec_results = [aux(vect) for vect in next_vectors
+                           if is_vector_long_enough(aux(vect))]
+            print('rec', next_vectors, rec_results)
+            if not is_vector_long_enough(start_vector):
+
+                if rec_results == []:
+                    return tuple(self.PathClass(self, vertice_list=[]) for p in start_vector)
+
+                return max(rec_results, key=evualuate_path_vect)
+
+            if rec_results == []:
+                return start_vector
+
+            mm = max(rec_results, key=evualuate_path_vect)
+
+            return max(start_vector, mm, key=evualuate_path_vect)
+
+        start_vectors = [tuple(self.PathClass(self, vertice_list=[i])
+                               if i is not None else self.PathClass(self) for i in li)
+                         for li in weird_matching(start_vertices + [None], list(range(len(pathes_length_list))))]
+        print('srt', start_vectors)
+        return max([aux(vector) for vector in start_vectors], key=evualuate_path_vect)
 
 
 class WeightedPath(Path):
@@ -303,9 +298,9 @@ class WeightedPath(Path):
             for k, v in enumerate(self._vertices_list):
 
                 if v != self[-1]:
-                    # print(f'Logging : k : {k}, v : {v}, vertices_list: {self.vertices_list}')
+
                     s += self.graph.get_weight(v, self._vertices_list[k + 1])
-            # print(f'len({self}) = {s}')
+
             self._len = s
 
         return self._len
@@ -357,9 +352,36 @@ class WeightedVerticesPath(Path):
     def __len__(self):
         if self._len is None:
             self._len = sum(self.graph.weight_list[i] for i in self._vertices_list)
+        return self._len
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self) -> str:
+        s = ''
+        for k, v in enumerate(self._vertices_list):
+            s += str(v) + f'({self.graph.weight_list[v]})'
+
+            if v != self[-1]:
+                s += ' -> '
+
+        return s
+
+    def is_overlapping(self, other: 'Path'):
+        """Check for overlapping pathes. An overlap at a city is acceptable"""
+
+        r = all((vertex not in other) or (self.graph[vertex] != 0) for vertex in self)
+
+        return r
+
+    def number_of_vertices(self):
+
+        return sum(1 for v in self if self.graph.weight_list[v])
 
 
 class WeightedVerticesGraph(Graph):
+
+    PathClass = WeightedVerticesPath
 
     def __init__(self, neighbour_list: List[List[int]], weight_list):
         super().__init__(neighbour_list)
@@ -368,6 +390,10 @@ class WeightedVerticesGraph(Graph):
     def __repr__(self):
 
         return f'WeightedVerticesGraph({self.neighbour_list}, {self.weight_list})'
+
+    def __getitem__(self, key):
+
+        return self.weight_list[key]
 
     def get_weight(self, vertex1: int, vertex2: int) -> float:
 
@@ -407,5 +433,13 @@ if __name__ == '__main__':
 
     circuit2 = WeightedVerticesGraph([[1, 5], [0, 2], [1, 3], [2, 4], [3, 5], [0, 4]], [0, 50, 0, 10, 0, 50])
     circuit = WeightedVerticesGraph([[1], [0, 2, 5], [1, 3], [2, 4, 5], [3], [1, 3]], [50, 10, 50, 10, 50, 100])
-    vroum = circuit.gen_max_pathes([0], [1000])
-    print('vroum :', vroum)
+    circuit3 = WeightedVerticesGraph([[1], [0, 2], [1, 3, 11], [2, 4], [3, 5],
+                                      [4, 6], [5, 7, 9], [6, 8], [7], [6, 10],
+                                      [9, 11], [2, 10]],
+                                     [30, 0, 50, 0, 100, 0, 50, 0, 40, 0, 10, 0])
+    circuit4 = WeightedVerticesGraph([[1], [0, 2], [1]], [10, 0, 10])
+    #vroum = str(circuit3.gen_max_pathes([0, 8], [2, 2]))
+    #vroum2 = str(circuit.gen_max_path(0))
+    print(circuit4.gen_max_pathes([0], [4, 4]))
+    #print('vroum :', vroum)
+    #print('vroum2 :', vroum2)
