@@ -13,9 +13,9 @@ def functional_copy(destination: tuple, item, key: int) -> tuple:
     return destination[:key - 1] + (item,) + destination[key + 1:]
 
 
-def no_duplicate(li):
+def no_duplicate(li_):
     nl = []
-    for a in li:
+    for a in li_:
         if a not in nl:
             nl.append(a)
     return nl
